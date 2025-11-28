@@ -19,22 +19,22 @@ import {
 } from "lucide-react";
 
 function useTheme() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-
-  useEffect(() => {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'dark';
     const stored = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = stored as 'light' | 'dark' || (prefersDark ? 'dark' : 'light');
+    return stored as 'light' | 'dark' || (prefersDark ? 'dark' : 'light');
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
     
-    setTheme(initialTheme);
-    document.documentElement.setAttribute('data-theme', initialTheme);
-    
-    if (initialTheme === 'dark') {
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, []);
+  }, [theme]);
 
   const toggleTheme = (newTheme: 'light' | 'dark') => {
     setTheme(newTheme);
